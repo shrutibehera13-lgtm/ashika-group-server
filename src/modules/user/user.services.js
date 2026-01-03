@@ -1,6 +1,7 @@
 import User from "../../schemas/user.schema.js";
 import { AppError } from "../../lib/errors.js";
 import bcrypt from "bcryptjs";
+import { generateToken } from "../../lib/jwt.js";
 
 export const createUserService = async (userData) => {
   const { firstName, lastName, email, password, phone } = userData;
@@ -49,9 +50,17 @@ export const loginUserService = async (email, password) => {
     throw new AppError("Invalid email or password", 401);
   }
 
-  return {
+  const token = generateToken({
     id: user._id,
-    firstName: user.firstName,
     email: user.email,
+  });
+
+  return {
+    token,
+    user: {
+      id: user._id,
+      firstName: user.firstName,
+      email: user.email,
+    },
   };
 };

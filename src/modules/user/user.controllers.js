@@ -1,4 +1,5 @@
 import { AppError } from "../../lib/errors.js";
+import userSchema from "../../schemas/user.schema.js";
 import {
   createUserService,
   loginUserService,
@@ -37,9 +38,7 @@ export const resetPassword = async (req, res, next) => {
     if (!email || !newPassword) {
       throw new AppError("Email and new password are required", 400);
     }
-
     const user = await resetPasswordService(email, newPassword);
-
     res.status(200).json({
       message: "Password updated successfully",
       data: {
@@ -61,9 +60,20 @@ export const loginUser = async (req, res, next) => {
     }
 
     const user = await loginUserService(email, password);
-
     res.status(200).json({
       message: "Login successful",
+      data: user,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getMe = async (req, res, next) => {
+  try {
+    const user = await userSchema.findById(req.user.id).select("-password");
+
+    res.status(200).json({
       data: user,
     });
   } catch (err) {
